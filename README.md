@@ -106,7 +106,11 @@
 1. **克隆或下载 Skill 文件**
 
 ```bash
+<<<<<<< HEAD
 git clone <repository-url>
+=======
+git clone https://github.com/liam12138/fullstack-dev-skill.git
+>>>>>>> d812423 (Initial commit)
 cd fullstack-dev-skill
 ```
 
