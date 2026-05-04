@@ -1,0 +1,58 @@
+{
+  "name": "fullstack-dev",
+  "version": "1.0.0",
+  "description": "全栈开发工程师 Skill - 提供从项目初始化、需求分析、技术方案设计到代码实现的全程指导",
+  "author": "Trae",
+  "license": "MIT",
+  "keywords": [
+    "fullstack",
+    "development",
+    "scaffold",
+    "project-init",
+    "code-generation",
+    "requirements",
+    "tech-spec"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "skill": {
+    "triggerCommands": [
+      "/init",
+      "/new-project",
+      "/fullstack"
+    ],
+    "triggerPhrases": [
+      "帮我初始化一个新项目",
+      "创建一个新项目",
+      "开始一个新项目",
+      "帮我设计技术方案",
+      "生成项目代码"
+    ],
+    "capabilities": [
+      "project-initialization",
+      "requirements-collection",
+      "tech-spec-generation",
+      "code-generation",
+      "multi-app-support"
+    ],
+    "platforms": [
+      "trae",
+      "claude-code"
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "fullstack-dev",
+  "name": "全栈开发工程师",
+  "description": "提供从项目初始化、需求分析、技术方案设计到代码实现的全程指导。支持单体应用、前后端分离、微服务架构，通过对话式交互引导用户完成开发流程。",
+  "version": "1.0.0",
+  "author": "Trae",
+  "icon": "code",
+  "category": "development",
+  "tags": ["fullstack", "scaffold", "code-generation", "architecture"],
+  "triggers": {
+    "commands": ["/init", "/new-project", "/fullstack"],
+    "phrases": [
+      "帮我初始化一个新项目",
+      "创建一个新项目",
+      "开始一个新项目",
+      "帮我设计技术方案",
+      "生成项目代码"
+    ]
+  },
+  "capabilities": {
+    "projectInitialization": {
+      "description": "项目初始化引导",
+      "supportedTypes": ["web", "mobile", "backend", "desktop", "cli"]
+    },
+    "requirementsCollection": {
+      "description": "需求收集与文档生成",
+      "outputFormats": ["markdown"]
+    },
+    "techSpecGeneration": {
+      "description": "技术方案生成",
+      "supportsMultiApp": true,
+      "architectureTypes": ["monolithic", "frontend-backend-separated", "microservices"]
+    },
+    "codeGeneration": {
+      "description": "代码生成",
+      "supportedStacks": [
+        "react-typescript-vite",
+        "vue3-typescript-vite",
+        "nodejs-express-typescript",
+        "python-fastapi",
+        "java-springboot"
+      ]
+    }
+  },
+  "workflow": {
+    "stages": [
+      {
+        "id": "init",
+        "name": "项目初始化",
+        "description": "收集项目基本信息"
+      },
+      {
+        "id": "requirements",
+        "name": "需求收集",
+        "description": "通过对话收集功能和非功能需求"
+      },
+      {
+        "id": "tech-spec",
+        "name": "技术方案",
+        "description": "生成技术方案文档并确认"
+      },
+      {
+        "id": "code-gen",
+        "name": "代码生成",
+        "description": "根据技术方案生成初始代码结构"
+      },
+      {
+        "id": "delivery",
+        "name": "项目交付",
+        "description": "提供后续开发指导"
+      }
+    ],
+    "confirmationRequired": true,
+    "allowRollback": true
+  },
+  "platforms": {
+    "trae": {
+      "enabled": true,
+      "integrationType": "skill"
+    },
+    "claude-code": {
+      "enabled": true,
+      "integrationType": "mcp"
+    }
+  }
+}
