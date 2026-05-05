@@ -8,7 +8,7 @@
   "category": "development",
   "tags": ["fullstack", "scaffold", "code-generation", "architecture"],
   "triggers": {
-    "commands": ["/init", "/new-project", "/fullstack"],
+    "commands": ["/project-init", "/new-project", "/fullstack"],
     "phrases": [
       "帮我初始化一个新项目",
       "创建一个新项目",

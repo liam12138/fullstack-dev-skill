@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { SessionState, ConfirmationState } from '../core/types';
-=======
 import { SessionState, ConfirmationState, Stage } from '../core/types';
->>>>>>> d812423 (Initial commit)
 import { STAGES } from '../core';
 
 export interface StateManagerConfig {
@@ -101,22 +97,14 @@ export class StateManager {
     return session?.collectedData[key] as T | undefined;
   }
 
-<<<<<<< HEAD
-  setCurrentStage(sessionId: string, stage: string, step: string): SessionState | undefined {
-=======
   setCurrentStage(sessionId: string, stage: Stage, step: string): SessionState | undefined {
->>>>>>> d812423 (Initial commit)
     return this.updateSession(sessionId, {
       currentStage: stage,
       currentStep: step,
     });
   }
 
-<<<<<<< HEAD
-  canRollback(sessionId: string, targetStage: string, targetStep: string): boolean {
-=======
   canRollback(sessionId: string, targetStage: Stage, targetStep: string): boolean {
->>>>>>> d812423 (Initial commit)
     const session = this.sessions.get(sessionId);
     if (!session) return false;
     
@@ -132,11 +120,7 @@ export class StateManager {
     return false;
   }
 
-<<<<<<< HEAD
-  rollback(sessionId: string, targetStage: string, targetStep: string): SessionState | undefined {
-=======
   rollback(sessionId: string, targetStage: Stage, targetStep: string): SessionState | undefined {
->>>>>>> d812423 (Initial commit)
     const session = this.sessions.get(sessionId);
     if (!session || !this.canRollback(sessionId, targetStage, targetStep)) {
       return undefined;

@@ -106,11 +106,7 @@
 1. **克隆或下载 Skill 文件**
 
 ```bash
-<<<<<<< HEAD
-git clone <repository-url>
-=======
 git clone https://github.com/liam12138/fullstack-dev-skill.git
->>>>>>> d812423 (Initial commit)
 cd fullstack-dev-skill
 ```
 
@@ -120,7 +116,15 @@ cd fullstack-dev-skill
 npm install
 ```
 
-3. **构建项目**
+3. **注册 Claude Code 插件**
+
+```bash
+npm run setup
+```
+
+此命令会将当前项目注册为 Claude Code 的本地插件市场，并安装 `fullstack-dev` 插件。注册后重启 Claude Code 即可使用 `/project-init`、`/new-project`、`/fullstack` 等命令。
+
+4. **构建项目（可选）**
 
 ```bash
 npm run build
@@ -133,11 +137,46 @@ npm run build
 3. 添加本地 Skill 或指定 Skill 路径
 4. 启用全栈开发工程师 Skill
 
-### Claude Code 配置
+### Claude Code 插件安装
 
-1. 确保已安装 Claude Code CLI 工具
-2. 配置 MCP 服务器连接
-3. 在项目中引入 Skill 工具集
+本 Skill 已适配为 Claude Code 插件，安装后即可在任意目录使用触发命令。
+
+#### 前置条件
+
+- Node.js >= 18.0.0
+- Claude Code CLI 已安装（[claude.ai/code](https://claude.ai/code)）
+- npm 或 yarn
+
+#### 安装步骤
+
+**方式一：通过 npm（推荐）**
+
+在项目根目录执行：
+```bash
+npm run setup
+```
+
+这会注册本地插件市场并安装 `fullstack-dev` 插件。
+
+**方式二：手动安装**
+
+```bash
+claude plugin marketplace add ./
+claude plugin install fullstack-dev@fullstack-dev-marketplace
+```
+
+#### 验证安装
+
+1. 启动 Claude Code（在任意目录均可）
+2. 输入 `/help` 查看可用命令列表，应能看到 `/project-init`、`/new-project`、`/fullstack`
+3. 输入任一命令（如 `/project-init`）开始使用 Skill 工作流
+4. 按照 Claude 的引导完成各阶段操作
+
+#### 卸载
+
+```bash
+claude plugins uninstall fullstack-dev
+```
 
 ---
 
@@ -148,7 +187,7 @@ npm run build
 在终端或命令面板中输入以下命令之一：
 
 ```
-/init
+/project-init
 /new-project
 /fullstack
 ```
@@ -163,7 +202,7 @@ npm run build
 
 ### 方式二：逐步引导
 
-1. **启动 Skill**：输入 `/init` 或描述您的需求
+1. **启动 Skill**：输入 `/project-init` 或描述您的需求
 2. **回答问题**：按照引导完成项目基本信息填写
 3. **确认初始化**：项目配置确认后，进入需求收集阶段
 4. **收集需求**：详细描述您的功能和非功能需求
@@ -324,7 +363,7 @@ Q6: 技术熟悉度
 
 | 命令 | 说明 |
 |------|------|
-| `/init` | 初始化新项目 |
+| `/project-init` | 初始化新项目 |
 | `/new-project` | 创建新项目 |
 | `/fullstack` | 启动全栈开发流程 |
 | `/requirements` | 开始需求收集 |
@@ -517,7 +556,7 @@ Q6: 技术熟悉度
 Skill 会自动检测当前平台并适配交互方式：
 
 - **Trae IDE**：利用 Skill 机制，支持自然语言交互
-- **Claude Code**：通过 MCP 协议，支持命令行交互
+- **Claude Code**：通过插件机制，支持 `/` 斜杠命令和自然语言交互
 
 两个平台功能一致，您可以根据习惯选择使用。
 

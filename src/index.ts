@@ -1,16 +1,6 @@
 import { StateManager, stateManager } from './core/state-manager';
 import { qaEngine, initializeQaEngine } from './qa-engine';
 import { documentGenerator } from './doc-generator';
-<<<<<<< HEAD
-import { 
-  ProjectConfig, 
-  SessionState, 
-  STAGES, 
-  STAGE_NAMES,
-  ArchitectureType,
-  ProjectType,
-} from './core/types';
-=======
 import {
   ProjectConfig,
   SessionState,
@@ -22,7 +12,6 @@ import {
   ArchitectureType,
   ProjectType,
 } from './core';
->>>>>>> d812423 (Initial commit)
 import { RequirementSpec, TechSolution, TechRecommendation } from './core/specs';
 
 export interface FullstackDevSkill {
@@ -37,11 +26,7 @@ export interface FullstackDevSkill {
   generateRequirementsDocument(sessionId: string): string | null;
   generateTechSpecDocument(sessionId: string): string | null;
   confirmStage(sessionId: string): boolean;
-<<<<<<< HEAD
-  rollback(sessionId: string, targetStage: string): boolean;
-=======
   rollback(sessionId: string, targetStage: Stage): boolean;
->>>>>>> d812423 (Initial commit)
 }
 
 export interface SkillResponse {
@@ -145,11 +130,7 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
     return false;
   }
 
-<<<<<<< HEAD
-  rollback(sessionId: string, targetStage: string): boolean {
-=======
   rollback(sessionId: string, targetStage: Stage): boolean {
->>>>>>> d812423 (Initial commit)
     return this.stateManager.rollback(sessionId, targetStage, 'start') !== null;
   }
 

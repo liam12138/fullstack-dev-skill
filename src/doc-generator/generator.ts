@@ -164,11 +164,7 @@ ${overview.successCriteria ? `### 成功标准\n\n${overview.successCriteria.map
 *暂无功能需求*`;
     }
 
-<<<<<<< HEAD
-    const groupedByCategory = this.groupByCategory(requirements);
-=======
     const groupedByCategory = this.groupByCategory(requirements, r => r.category || '其他');
->>>>>>> d812423 (Initial commit)
     const sections: string[] = ['## 功能需求'];
 
     for (const [category, reqs] of Object.entries(groupedByCategory)) {
@@ -204,11 +200,7 @@ ${overview.successCriteria ? `### 成功标准\n\n${overview.successCriteria.map
 *暂无非功能需求*`;
     }
 
-<<<<<<< HEAD
-    const groupedByCategory = this.groupByCategory(requirements);
-=======
     const groupedByCategory = this.groupByCategory(requirements, r => r.category || '其他');
->>>>>>> d812423 (Initial commit)
     const sections: string[] = ['## 非功能需求'];
 
     for (const [category, reqs] of Object.entries(groupedByCategory)) {
@@ -296,11 +288,7 @@ ${overview.successCriteria ? `### 成功标准\n\n${overview.successCriteria.map
 *暂无约束条件*`;
     }
 
-<<<<<<< HEAD
-    const groupedByType = this.groupByCategory(constraints);
-=======
     const groupedByType = this.groupByCategory(constraints, c => c.type);
->>>>>>> d812423 (Initial commit)
     const sections: string[] = ['## 约束条件'];
 
     for (const [type, items] of Object.entries(groupedByType)) {
@@ -612,15 +600,6 @@ ${overview.successCriteria ? `### 成功标准\n\n${overview.successCriteria.map
     return sections.join('\n');
   }
 
-<<<<<<< HEAD
-  private groupByCategory<T extends { category?: string }>(items: T[]): Record<string, T[]> {
-    return items.reduce((acc, item) => {
-      const category = item.category || '其他';
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(item);
-=======
   private groupByCategory<T>(items: T[], getKey: (item: T) => string): Record<string, T[]> {
     return items.reduce((acc, item) => {
       const key = getKey(item) || '其他';
@@ -628,7 +607,6 @@ ${overview.successCriteria ? `### 成功标准\n\n${overview.successCriteria.map
         acc[key] = [];
       }
       acc[key].push(item);
->>>>>>> d812423 (Initial commit)
       return acc;
     }, {} as Record<string, T[]>);
   }

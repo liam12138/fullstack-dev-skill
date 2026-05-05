@@ -130,13 +130,8 @@ export function evaluateCondition(
   }
 }
 
-<<<<<<< HEAD
-function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
-  return path.split('.').reduce((current, key) => {
-=======
 function getNestedValue(obj: object, path: string): unknown {
   return path.split('.').reduce((current: any, key) => {
->>>>>>> d812423 (Initial commit)
     if (current && typeof current === 'object' && key in current) {
       return (current as Record<string, unknown>)[key];
     }

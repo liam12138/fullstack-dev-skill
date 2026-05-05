@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "fullstack-dev-marketplace",
+  "description": "全栈开发工程师 Skill - 提供从项目初始化、需求分析、技术方案设计到代码实现的全程指导",
+  "owner": {
+    "name": "Trae"
+  },
+  "plugins": [
+    {
+      "name": "fullstack-dev",
+      "description": "全栈开发工程师 - 系统化引导完成项目初始化、需求分析、技术方案设计和代码实现。支持单体应用、前后端分离、微服务架构。",
+      "author": {
+        "name": "Trae"
+      },
+      "category": "development",
+      "source": "./plugins/fullstack-dev"
+    }
+  ]
+}

@@ -1,10 +1,7 @@
 export type ProjectType = 'web' | 'mobile' | 'backend' | 'desktop' | 'cli' | 'library';
 export type ArchitectureType = 'monolithic' | 'frontend-backend-separated' | 'microservices';
 export type Platform = 'trae' | 'claude-code';
-<<<<<<< HEAD
-=======
 export type Stage = 'init' | 'requirements' | 'tech-spec' | 'code-gen' | 'delivery';
->>>>>>> d812423 (Initial commit)
 
 export interface ProjectConfig {
   id: string;
@@ -113,11 +110,7 @@ export interface CommunicationConfig {
 }
 
 export interface ConfirmationState {
-<<<<<<< HEAD
-  stage: string;
-=======
   stage: Stage;
->>>>>>> d812423 (Initial commit)
   step: string;
   confirmed: boolean;
   confirmedAt?: string;
@@ -127,11 +120,7 @@ export interface ConfirmationState {
 export interface SessionState {
   sessionId: string;
   projectId: string;
-<<<<<<< HEAD
-  currentStage: string;
-=======
   currentStage: Stage;
->>>>>>> d812423 (Initial commit)
   currentStep: string;
   confirmationHistory: ConfirmationState[];
   collectedData: Record<string, unknown>;

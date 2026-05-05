@@ -1,8 +1,6 @@
-<<<<<<< HEAD
-=======
 import type { Stage } from './types';
 
->>>>>>> d812423 (Initial commit)
+
 export * from './types';
 export * from './specs';
 export * from './templates';
@@ -16,15 +14,9 @@ export const STAGES = {
   TECH_SPEC: 'tech-spec',
   CODE_GEN: 'code-gen',
   DELIVERY: 'delivery',
-<<<<<<< HEAD
-} as const;
-
-export const STAGE_NAMES: Record<string, string> = {
-=======
 } as const satisfies Record<string, Stage>;
 
 export const STAGE_NAMES: Record<Stage, string> = {
->>>>>>> d812423 (Initial commit)
   [STAGES.INIT]: '项目初始化',
   [STAGES.REQUIREMENTS]: '需求收集',
   [STAGES.TECH_SPEC]: '技术方案',
