@@ -126,4 +126,5 @@ export interface SessionState {
   collectedData: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
+  completedAt?: string;
 }

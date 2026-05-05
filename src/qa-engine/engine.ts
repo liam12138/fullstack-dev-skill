@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 import {
   Question,
   QuestionGroup,
@@ -9,9 +12,50 @@ import {
   evaluateQuestionCondition,
 } from './types';
 
+interface PersistedAnswer {
+  questionId: string;
+  value: unknown;
+  timestamp: string;
+  isValid: boolean;
+  validationErrors?: string[];
+}
+
+interface PersistedQuestionnaireState {
+  flowId: string;
+  currentGroupId: string;
+  currentQuestionId: string;
+  answers: Record<string, PersistedAnswer>;
+  history: Array<{
+    groupId: string;
+    questionId: string;
+    direction: 'forward' | 'backward';
+    timestamp: string;
+  }>;
+  startedAt: string;
+  completedAt?: string;
+}
+
+interface PersistedStatesData {
+  states: Record<string, PersistedQuestionnaireState>;
+}
+
+function defaultQaStoragePath(): string {
+  return path.join(os.homedir(), '.claude', 'fullstack-dev', 'questionnaire-states.json');
+}
+
 export class QaEngine {
   private flows: Map<string, QuestionFlow> = new Map();
   private states: Map<string, QuestionnaireState> = new Map();
+  private storagePath: string = defaultQaStoragePath();
+  private autoSave: boolean = true;
+
+  setStoragePath(storagePath: string): void {
+    this.storagePath = storagePath;
+  }
+
+  enableAutoSave(enabled: boolean): void {
+    this.autoSave = enabled;
+  }
 
   registerFlow(flow: QuestionFlow): void {
     this.flows.set(flow.id, flow);
@@ -38,6 +82,7 @@ export class QaEngine {
     };
 
     this.states.set(this.getStateKey(flowId), state);
+    this.saveToFile();
     return state;
   }
 
@@ -98,6 +143,8 @@ export class QaEngine {
       state.completedAt = new Date().toISOString();
     }
 
+    this.saveToFile();
+
     return {
       success: true,
       errors: [],
@@ -122,6 +169,8 @@ export class QaEngine {
       direction: 'backward',
       timestamp: new Date().toISOString(),
     });
+
+    this.saveToFile();
 
     return this.getCurrentQuestion(flowId);
   }
@@ -201,6 +250,36 @@ export class QaEngine {
 
   reset(flowId: string): void {
     this.states.delete(this.getStateKey(flowId));
+    this.saveToFile();
+  }
+
+  hasActiveState(flowId: string): boolean {
+    const state = this.states.get(this.getStateKey(flowId));
+    return state !== undefined && !state.completedAt;
+  }
+
+  restoreState(flowId: string, persisted: PersistedQuestionnaireState): QuestionnaireState {
+    const answers = new Map<string, Answer>();
+    for (const [key, value] of Object.entries(persisted.answers)) {
+      answers.set(key, value as Answer);
+    }
+
+    const state: QuestionnaireState = {
+      flowId: persisted.flowId,
+      currentGroupId: persisted.currentGroupId,
+      currentQuestionId: persisted.currentQuestionId,
+      answers,
+      history: persisted.history,
+      startedAt: persisted.startedAt,
+      completedAt: persisted.completedAt,
+    };
+
+    this.states.set(this.getStateKey(flowId), state);
+    return state;
+  }
+
+  private getStateKey(flowId: string): string {
+    return flowId;
   }
 
   private findNextQuestion(flowId: string): {
@@ -243,8 +322,66 @@ export class QaEngine {
     return { question: null, groupId: '', isComplete: true };
   }
 
-  private getStateKey(flowId: string): string {
-    return flowId;
+  saveToFile(): boolean {
+    if (!this.autoSave) return false;
+
+    try {
+      const dir = path.dirname(this.storagePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      const statesObj: Record<string, PersistedQuestionnaireState> = {};
+      for (const [key, state] of this.states) {
+        const answersObj: Record<string, PersistedAnswer> = {};
+        state.answers.forEach((answer, questionId) => {
+          answersObj[questionId] = {
+            questionId: answer.questionId,
+            value: answer.value,
+            timestamp: answer.timestamp,
+            isValid: answer.isValid,
+            validationErrors: answer.validationErrors,
+          };
+        });
+
+        statesObj[key] = {
+          flowId: state.flowId,
+          currentGroupId: state.currentGroupId,
+          currentQuestionId: state.currentQuestionId,
+          answers: answersObj,
+          history: state.history,
+          startedAt: state.startedAt,
+          completedAt: state.completedAt,
+        };
+      }
+
+      const data: PersistedStatesData = { states: statesObj };
+      fs.writeFileSync(this.storagePath, JSON.stringify(data, null, 2), 'utf-8');
+      return true;
+    } catch (error) {
+      console.error('Failed to save questionnaire states to file:', error);
+      return false;
+    }
+  }
+
+  loadFromFile(): boolean {
+    try {
+      if (!fs.existsSync(this.storagePath)) {
+        return false;
+      }
+
+      const content = fs.readFileSync(this.storagePath, 'utf-8');
+      const data: PersistedStatesData = JSON.parse(content);
+
+      this.states.clear();
+      for (const [key, persisted] of Object.entries(data.states)) {
+        this.restoreState(key, persisted);
+      }
+      return true;
+    } catch (error) {
+      console.error('Failed to load questionnaire states from file:', error);
+      return false;
+    }
   }
 }
 

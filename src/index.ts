@@ -18,7 +18,7 @@ export interface FullstackDevSkill {
   stateManager: StateManager;
   qaEngine: typeof qaEngine;
   documentGenerator: typeof documentGenerator;
-  
+
   init(): void;
   startProject(): SessionState;
   getCurrentStage(sessionId: string): string;
@@ -27,10 +27,12 @@ export interface FullstackDevSkill {
   generateTechSpecDocument(sessionId: string): string | null;
   confirmStage(sessionId: string): boolean;
   rollback(sessionId: string, targetStage: Stage): boolean;
+  getExistingSessions(): SessionState[];
+  resumeSession(sessionId: string): SkillResponse;
 }
 
 export interface SkillResponse {
-  type: 'question' | 'info' | 'document' | 'confirmation' | 'error';
+  type: 'question' | 'info' | 'document' | 'confirmation' | 'error' | 'resume-options';
   content: string;
   data?: unknown;
   nextAction?: string;
@@ -49,6 +51,10 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
 
   init(): void {
     initializeQaEngine();
+    if (this.stateManager.isFileStorage()) {
+      this.stateManager.loadFromFile();
+      this.qaEngine.loadFromFile();
+    }
   }
 
   startProject(): SessionState {
@@ -62,6 +68,60 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
     const session = this.stateManager.getSession(sessionId);
     if (!session) return '';
     return STAGE_NAMES[session.currentStage] || session.currentStage;
+  }
+
+  getExistingSessions(): SessionState[] {
+    return this.stateManager.getAllSessions();
+  }
+
+  resumeSession(sessionId: string): SkillResponse {
+    const session = this.stateManager.getSession(sessionId);
+    if (!session) {
+      return {
+        type: 'error',
+        content: '会话不存在，无法恢复',
+      };
+    }
+
+    if (session.completedAt) {
+      return {
+        type: 'info',
+        content: '该会话已完成所有阶段，无需恢复',
+      };
+    }
+
+    const flowId = this.getFlowIdForStage(session.currentStage);
+    if (flowId) {
+      const hasActiveState = this.qaEngine.hasActiveState(flowId);
+      if (!hasActiveState) {
+        this.qaEngine.startQuestionnaire(flowId);
+      }
+    }
+
+    const currentQuestion = flowId ? this.qaEngine.getCurrentQuestion(flowId) : null;
+
+    if (currentQuestion) {
+      const progress = this.qaEngine.getProgress(flowId!);
+      return {
+        type: 'question',
+        content: `已恢复会话 (${STAGE_NAMES[session.currentStage]} - 进度 ${progress.percentage}%)
+
+${currentQuestion.title}`,
+        data: {
+          session,
+          question: currentQuestion,
+          progress,
+        },
+        nextAction: 'continue',
+      };
+    }
+
+    return {
+      type: 'info',
+      content: `已恢复会话，当前阶段: ${STAGE_NAMES[session.currentStage]}`,
+      data: { session },
+      nextAction: 'continue-stage',
+    };
   }
 
   processUserInput(sessionId: string, input: string): SkillResponse {
@@ -108,7 +168,7 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
 
     const solution = this.stateManager.getCollectedData<TechSolution>(sessionId, 'techSolution');
     const projectConfig = this.stateManager.getCollectedData<ProjectConfig>(sessionId, 'projectConfig');
-    
+
     if (!solution || !projectConfig) return null;
 
     return this.documentGenerator.generateTechSpecDocument(solution, projectConfig);
@@ -120,10 +180,22 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
 
     const stages = Object.values(STAGES);
     const currentIndex = stages.indexOf(session.currentStage);
-    
+
     if (currentIndex < stages.length - 1) {
       const nextStage = stages[currentIndex + 1];
+
+      const currentFlowId = this.getFlowIdForStage(session.currentStage);
+      if (currentFlowId) {
+        this.qaEngine.reset(currentFlowId);
+      }
+
       this.stateManager.setCurrentStage(sessionId, nextStage, 'start');
+
+      const nextFlowId = this.getFlowIdForStage(nextStage);
+      if (nextFlowId) {
+        this.qaEngine.startQuestionnaire(nextFlowId);
+      }
+
       return true;
     }
 
@@ -134,12 +206,23 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
     return this.stateManager.rollback(sessionId, targetStage, 'start') !== null;
   }
 
+  private getFlowIdForStage(stage: Stage): string | null {
+    switch (stage) {
+      case STAGES.INIT:
+        return 'project-init';
+      case STAGES.REQUIREMENTS:
+        return 'requirements';
+      default:
+        return null;
+    }
+  }
+
   private handleInitStage(sessionId: string, input: string): SkillResponse {
     const currentQuestion = this.qaEngine.getCurrentQuestion('project-init');
-    
+
     if (currentQuestion) {
       const result = this.qaEngine.answerQuestion('project-init', input);
-      
+
       if (!result.success) {
         return {
           type: 'error',
@@ -151,7 +234,7 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
       if (result.isComplete) {
         const answers = this.qaEngine.getAnswers('project-init');
         this.createProjectConfig(sessionId, answers);
-        
+
         return {
           type: 'confirmation',
           content: '项目初始化信息已收集完成，是否继续进行需求收集？',
@@ -175,10 +258,10 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
 
   private handleRequirementsStage(sessionId: string, input: string): SkillResponse {
     const currentQuestion = this.qaEngine.getCurrentQuestion('requirements');
-    
+
     if (currentQuestion) {
       const result = this.qaEngine.answerQuestion('requirements', input);
-      
+
       if (!result.success) {
         return {
           type: 'error',
@@ -190,7 +273,7 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
       if (result.isComplete) {
         const answers = this.qaEngine.getAnswers('requirements');
         this.createRequirementSpec(sessionId, answers);
-        
+
         return {
           type: 'confirmation',
           content: '需求信息已收集完成，是否生成需求文档？',
@@ -252,7 +335,7 @@ class FullstackDevSkillImpl implements FullstackDevSkill {
 
   private createRequirementSpec(sessionId: string, answers: Record<string, unknown>): void {
     const projectConfig = this.stateManager.getCollectedData<ProjectConfig>(sessionId, 'projectConfig');
-    
+
     const spec: RequirementSpec = {
       id: `req_${Date.now()}`,
       projectId: projectConfig?.id || '',
